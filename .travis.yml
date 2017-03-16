@@ -16,13 +16,15 @@ script:
         BRANCH=$(basename $i);
         cp .travis.yml .travis.yml.tmp;
         git checkout -t upstream/$BRANCH;
-        git push mine +$BRANCH;
+        git push mine +$BRANCH 2>/dev/null;
         mv .travis.yml.tmp .travis.yml;
         git add .travis.yml;
         TAGNAME=$BRANCH-$(date +%F);
+        git config user.name "Tony Kelman";
+        git config user.email "tony@kelman.net";
         git commit -m "$TAGNAME - add .travis.yml";
         git tag $TAGNAME;
-        git push mine $TAGNAME;
+        git push mine $TAGNAME 2>/dev/null;
       fi;
     done
   - if [ -n "$TRAVIS_TAG" ]; then
