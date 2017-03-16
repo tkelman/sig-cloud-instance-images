@@ -1,0 +1,38 @@
+language: generic
+notifications:
+  email: false
+script:
+  - git remote add upstream https://github.com/CentOS/sig-cloud-instance-images
+  - git remote add mine https://$TOKEN:x-oauth-basic@github.com/$TRAVIS_REPO_SLUG
+  - git fetch --all
+# ignore master, it differs due to this file
+  - REFS=$(git ls-remote -h upstream | cut -f2 | grep -v refs/heads/master)
+  - for i in $REFS; do
+      UPSTREAM_SHA1=$(git ls-remote upstream $i | cut -f1);
+      MINE_SHA1=$(git ls-remote mine $i | cut -f1);
+      echo "upstream $i $UPSTREAM_SHA1";
+      echo "mine     $i $MINE_SHA1";
+      if [ "$UPSTREAM_SHA1" != "$MINE_SHA1" ]; then
+        BRANCH=$(basename $i);
+        cp .travis.yml .travis.yml.tmp;
+        git checkout -t upstream/$BRANCH;
+        git push mine +$BRANCH;
+        mv .travis.yml.tmp .travis.yml;
+        git add .travis.yml;
+        TAGNAME=$BRANCH-$(date +%F);
+        git commit -m "$TAGNAME - add .travis.yml";
+        git tag $TAGNAME;
+        git push mine $TAGNAME;
+      fi;
+    done
+  - if [ -n "$TRAVIS_TAG" ]; then
+      git checkout $TRAVIS_TAG;
+    fi
+deploy:
+  provider: releases
+  api_key: "$TOKEN"
+  file: "docker/*.tar.*"
+  file_glob: true
+  skip_cleanup: true
+  on:
+    tags: true
