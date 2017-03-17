@@ -14,7 +14,7 @@ script:
       echo "mine     $i $MINE_SHA1";
       if [ "$UPSTREAM_SHA1" != "$MINE_SHA1" ]; then
         BRANCH=$(basename $i);
-        cp .travis.yml .travis.yml.tmp;
+        grep -A99 "dep""loy" .travis.yml > .travis.yml.tmp;
         git checkout -t upstream/$BRANCH;
         git push mine +$BRANCH 2>/dev/null;
         mv .travis.yml.tmp .travis.yml;
@@ -27,9 +27,6 @@ script:
         git push mine $TAGNAME 2>/dev/null;
       fi;
     done
-  - if [ -n "$TRAVIS_TAG" ]; then
-      git checkout $TRAVIS_TAG;
-    fi
 deploy:
   provider: releases
   api_key: "$TOKEN"
