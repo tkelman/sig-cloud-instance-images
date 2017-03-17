@@ -15,7 +15,7 @@ script:
       echo "mine     $i $MINE_SHA1";
       if [ "$UPSTREAM_SHA1" != "$MINE_SHA1" ]; then
         BRANCH=$(basename $i);
-        echo "script: true" > .travis.yml.tmp;
+        echo "language: generic" > .travis.yml.tmp;
         grep -A99 "dep""loy" .travis.yml >> .travis.yml.tmp;
         git checkout -t upstream/$BRANCH;
         git push mine +$BRANCH 2>/dev/null;
@@ -34,5 +34,6 @@ deploy:
   api_key: "$TOKEN"
   file: "docker/*.tar.*"
   file_glob: true
+  skip_cleanup: true
   on:
     tags: true
