@@ -14,7 +14,8 @@ script:
       echo "mine     $i $MINE_SHA1";
       if [ "$UPSTREAM_SHA1" != "$MINE_SHA1" ]; then
         BRANCH=$(basename $i);
-        grep -A99 "dep""loy" .travis.yml > .travis.yml.tmp;
+        echo "script: true" > .travis.yml.tmp;
+        grep -A99 "dep""loy" .travis.yml >> .travis.yml.tmp;
         git checkout -t upstream/$BRANCH;
         git push mine +$BRANCH 2>/dev/null;
         mv .travis.yml.tmp .travis.yml;
@@ -22,7 +23,7 @@ script:
         TAGNAME=$BRANCH-$(date +%F);
         git config user.name "Tony Kelman";
         git config user.email "tony@kelman.net";
-        git commit -m "$TAGNAME - add .travis.yml";
+        git commit -m "$TAGNAME: add .travis.yml";
         git tag $TAGNAME;
         git push mine $TAGNAME 2>/dev/null;
       fi;
@@ -32,6 +33,5 @@ deploy:
   api_key: "$TOKEN"
   file: "docker/*.tar.*"
   file_glob: true
-  skip_cleanup: true
   on:
     tags: true
